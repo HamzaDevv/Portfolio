@@ -12,193 +12,222 @@ const COLOR_CYAN = new THREE.Color('#00f0ff')
 const COLOR_INDIGO = new THREE.Color('#2e00ff') // Deep indigo / electric blue
 const COLOR_GOLD = new THREE.Color('#ffd700') // For accents
 
-// Number of points
-const POINTS_COUNT = 20000
+// Transformer Embeddings: Define the "Tokens"
+// Instead of random points, we dedicate a specific cluster location to each portfolio section (Token).
+// Q, K, V are implicitly represented by how they connect.
+const TOKENS = [
+    { id: 0, name: "Hero", center: new THREE.Vector3(0, 0, 0), size: 3000 },
+    { id: 1, name: "About", center: new THREE.Vector3(-40, -50, -80), size: 2000 },
+    { id: 2, name: "Experience", center: new THREE.Vector3(50, -100, -160), size: 3500 },
+    { id: 3, name: "Projects", center: new THREE.Vector3(-50, -150, -240), size: 2500 },
+    { id: 4, name: "Achievements", center: new THREE.Vector3(40, -200, -320), size: 1500 },
+    { id: 5, name: "Contact", center: new THREE.Vector3(0, -250, -400), size: 1000 }
+];
 
-// Cluster Locations
-const CLUSTER_CENTERS = [
-    new THREE.Vector3(0, 0, 0),             // 0: Hero (Sphere)
-    new THREE.Vector3(-40, -50, -80),       // 1: About (Neural Network)
-    new THREE.Vector3(50, -100, -160),      // 2: Experience (Data Block)
-    new THREE.Vector3(-50, -150, -240),     // 3: Projects (Holographic Islands)
-    new THREE.Vector3(40, -200, -320),      // 4: Achievements (Rings)
-    new THREE.Vector3(0, -250, -400)        // 5: Contact (Singularity)
-]
+const TOTAL_POINTS = TOKENS.reduce((acc, t) => acc + t.size, 0);
 
-function generateLatentSpace() {
-    const positions = new Float32Array(POINTS_COUNT * 3)
-    const colors = new Float32Array(POINTS_COUNT * 3)
-    const basePositions = new Float32Array(POINTS_COUNT * 3)
-    const noiseOffsets = new Float32Array(POINTS_COUNT) // for organic movement
+function generateTransformerState() {
+    const positions = new Float32Array(TOTAL_POINTS * 3);
+    const colors = new Float32Array(TOTAL_POINTS * 3);
+    const basePositions = new Float32Array(TOTAL_POINTS * 3);
+    const noiseOffsets = new Float32Array(TOTAL_POINTS);
 
-    let idx = 0
+    let idx = 0;
 
-    // Helper to add a point
-    const addPoint = (x, y, z, cx, cy, cz) => {
-        positions[idx * 3] = x + cx
-        positions[idx * 3 + 1] = y + cy
-        positions[idx * 3 + 2] = z + cz
-        basePositions[idx * 3] = positions[idx * 3]
-        basePositions[idx * 3 + 1] = positions[idx * 3 + 1]
-        basePositions[idx * 3 + 2] = positions[idx * 3 + 2]
+    const addPoint = (x, y, z, cx, cy, cz, tokenIdx) => {
+        positions[idx * 3] = x + cx;
+        positions[idx * 3 + 1] = y + cy;
+        positions[idx * 3 + 2] = z + cz;
 
-        // Gradient based on Y position mostly
-        const ratio = Math.random()
-        const color = new THREE.Color().lerpColors(COLOR_CYAN, COLOR_INDIGO, ratio)
-        // Occasional gold accent
-        if (Math.random() > 0.95) color.lerp(COLOR_GOLD, 0.8)
+        basePositions[idx * 3] = positions[idx * 3];
+        basePositions[idx * 3 + 1] = positions[idx * 3 + 1];
+        basePositions[idx * 3 + 2] = positions[idx * 3 + 2];
 
-        colors[idx * 3] = color.r
-        colors[idx * 3 + 1] = color.g
-        colors[idx * 3 + 2] = color.b
+        // Tokens have distinct color bases for their 'Values'
+        let baseColor = COLOR_CYAN;
+        if (tokenIdx % 2 !== 0) baseColor = COLOR_INDIGO;
 
-        noiseOffsets[idx] = Math.random() * Math.PI * 2
-        idx++
-    }
+        const ratio = Math.random();
+        const color = new THREE.Color().lerpColors(baseColor, COLOR_GOLD, ratio > 0.9 ? 0.7 : 0.1);
 
-    // == Cluster 0: Loose Sphere (Hero) ==
-    const cluster0Count = 4000
-    const c0 = CLUSTER_CENTERS[0]
-    for (let i = 0; i < cluster0Count; i++) {
-        const r = 2 + Math.random() * 12
-        const theta = Math.random() * Math.PI * 2
-        const phi = Math.acos(2 * Math.random() - 1)
-        addPoint(
-            r * Math.sin(phi) * Math.cos(theta),
-            r * Math.sin(phi) * Math.sin(theta),
-            r * Math.cos(phi),
-            c0.x, c0.y, c0.z
-        )
-    }
+        colors[idx * 3] = color.r;
+        colors[idx * 3 + 1] = color.g;
+        colors[idx * 3 + 2] = color.b;
 
-    // == Cluster 1: Neural Network Nodes/Layers (About) ==
-    const cluster1Count = 4000
-    const c1 = CLUSTER_CENTERS[1]
-    const layers = 5
-    for (let i = 0; i < cluster1Count; i++) {
-        const layer = Math.floor(Math.random() * layers)
-        const x = (layer - layers / 2) * 5 + (Math.random() - 0.5) * 2 // spread layers
-        let y = (Math.random() - 0.5) * 15
-        let z = (Math.random() - 0.5) * 15
+        noiseOffsets[idx] = Math.random() * Math.PI * 2;
+        idx++;
+    };
 
-        // Cluster into "nodes" within layers
-        if (Math.random() > 0.3) {
-            const nodeCenterY = Math.floor(y / 4) * 4
-            const nodeCenterZ = Math.floor(z / 4) * 4
-            y = nodeCenterY + (Math.random() - 0.5) * 1.5
-            z = nodeCenterZ + (Math.random() - 0.5) * 1.5
+    // Generate clusters for each token
+    TOKENS.forEach((token, tIdx) => {
+        // We use spherical distribution to represent the "embedding space" of a token
+        for (let i = 0; i < token.size; i++) {
+            const r = 2 + Math.random() * 8;
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.acos(2 * Math.random() - 1);
+            addPoint(
+                r * Math.sin(phi) * Math.cos(theta),
+                r * Math.sin(phi) * Math.sin(theta),
+                r * Math.cos(phi),
+                token.center.x, token.center.y, token.center.z,
+                tIdx
+            );
         }
-        addPoint(x, y, z, c1.x, c1.y, c1.z)
-    }
+    });
 
-    // == Cluster 2: Data Block / 19M Docs (Experience) ==
-    const cluster2Count = 4000
-    const c2 = CLUSTER_CENTERS[2]
-    for (let i = 0; i < cluster2Count; i++) {
-        const x = (Math.random() - 0.5) * 20
-        const y = (Math.random() - 0.5) * 10
-        const z = (Math.random() - 0.5) * 8
-        addPoint(x, y, z, c2.x, c2.y, c2.z)
-    }
-
-    // == Cluster 3: Holographic Islands (Projects) ==
-    const cluster3Count = 4000
-    const c3 = CLUSTER_CENTERS[3]
-    for (let i = 0; i < cluster3Count; i++) {
-        const island = Math.floor(Math.random() * 3)
-        const centers = [
-            { x: -8, y: 0, z: -4 },
-            { x: 8, y: 4, z: 2 },
-            { x: 0, y: -6, z: 6 }
-        ]
-        const center = centers[island]
-        const r = Math.random() * 5
-        const theta = Math.random() * Math.PI * 2
-        const phi = Math.acos(2 * Math.random() - 1)
-
-        addPoint(
-            center.x + r * Math.sin(phi) * Math.cos(theta),
-            center.y + r * Math.sin(phi) * Math.sin(theta),
-            center.z + r * Math.cos(phi),
-            c3.x, c3.y, c3.z
-        )
-    }
-
-    // == Cluster 4: Scales/Rings (Achievements) ==
-    const cluster4Count = 2000
-    const c4 = CLUSTER_CENTERS[4]
-    for (let i = 0; i < cluster4Count; i++) {
-        const ring = Math.floor(Math.random() * 3)
-        const radii = [4, 8, 12]
-        const r = radii[ring] + (Math.random() - 0.5) * 1.5
-        const theta = Math.random() * Math.PI * 2
-        const y = (Math.random() - 0.5) * 1.5 // flat rings
-
-        addPoint(
-            r * Math.cos(theta),
-            y,
-            r * Math.sin(theta),
-            c4.x, c4.y, c4.z
-        )
-    }
-
-    // == Cluster 5: Dense Core / Singularity (Contact) ==
-    const cluster5Count = 2000
-    const c5 = CLUSTER_CENTERS[5]
-    for (let i = 0; i < cluster5Count; i++) {
-        // concentrated at center with spiral arms
-        const theta = Math.random() * Math.PI * 10
-        const r = Math.pow(Math.random(), 2) * 10 // concentrated in middle
-        const arm = Math.sin(theta * 2) * 0.5
-
-        addPoint(
-            (r + arm) * Math.cos(theta),
-            (Math.random() - 0.5) * (10 - r), // taller in middle
-            (r + arm) * Math.sin(theta),
-            c5.x, c5.y, c5.z
-        )
-    }
-
-    return { positions, colors, basePositions, noiseOffsets }
+    return { positions, colors, basePositions, noiseOffsets };
 }
 
-function LatentSpaceEmbedding() {
-    const pointsRef = useRef()
-    const { positions, colors, basePositions, noiseOffsets } = useMemo(() => generateLatentSpace(), [])
+// Global state to pass active token index to the beams
+window.activeTokenIdx = 0;
+
+function AttentionBeams() {
+    const lineGeoRef = useRef();
+    const lineMatRef = useRef();
+
+    // Generate all possible connections between token centers
+    const { linePositions, lineColors } = useMemo(() => {
+        const p = [];
+        const c = [];
+        const numTokens = TOKENS.length;
+
+        for (let i = 0; i < numTokens; i++) {
+            for (let j = 0; j < numTokens; j++) {
+                if (i !== j) {
+                    p.push(TOKENS[i].center.x, TOKENS[i].center.y, TOKENS[i].center.z);
+                    p.push(TOKENS[j].center.x, TOKENS[j].center.y, TOKENS[j].center.z);
+                    // Initial color (faded cyan)
+                    c.push(0, 0.94, 1, 0, 0.94, 1);
+                }
+            }
+        }
+        return {
+            linePositions: new Float32Array(p),
+            lineColors: new Float32Array(c)
+        };
+    }, []);
 
     useFrame((state) => {
-        if (!pointsRef.current) return
-        const time = state.clock.elapsedTime
-        const geo = pointsRef.current.geometry
-        const pos = geo.attributes.position.array
+        if (!lineGeoRef.current || !lineMatRef.current) return;
 
-        // Organic breathing for all points
-        for (let i = 0; i < POINTS_COUNT; i++) {
-            const i3 = i * 3
-            const noise = noiseOffsets[i]
-            const bx = basePositions[i3]
-            const by = basePositions[i3 + 1]
-            const bz = basePositions[i3 + 2]
+        const colors = lineGeoRef.current.attributes.color.array;
+        const time = state.clock.elapsedTime;
 
-            pos[i3] = bx + Math.sin(time * 0.5 + noise) * 0.1
-            pos[i3 + 1] = by + Math.cos(time * 0.4 + noise) * 0.1
-            pos[i3 + 2] = bz + Math.sin(time * 0.6 + noise) * 0.1
+        let idx = 0;
+        const numTokens = TOKENS.length;
+
+        // Mock Attention Mechanism: Softmax(Q * K^T)
+        // Highly simplified: the active token has strong lines to others, others have weak/no lines
+        for (let q = 0; q < numTokens; q++) {
+            for (let k = 0; k < numTokens; k++) {
+                if (q !== k) {
+                    // Base brightness depends on whether this is the active Query token
+                    let attentionScore = (q === window.activeTokenIdx) ? 0.8 : 0.05;
+
+                    // Add some noise/pulse to simulate continuous calculation
+                    attentionScore += Math.sin(time * 2 + q + k) * 0.1;
+
+                    // Make the line color intense GOLD if highly attended, else faded CYAN
+                    const targetColor = attentionScore > 0.5 ? COLOR_GOLD : COLOR_CYAN;
+
+                    // Vertex 1 (Query origin)
+                    colors[idx * 6] = targetColor.r * attentionScore;
+                    colors[idx * 6 + 1] = targetColor.g * attentionScore;
+                    colors[idx * 6 + 2] = targetColor.b * attentionScore;
+
+                    // Vertex 2 (Key destination)
+                    colors[idx * 6 + 3] = targetColor.r * attentionScore * 0.5; // Fades out towards target
+                    colors[idx * 6 + 4] = targetColor.g * attentionScore * 0.5;
+                    colors[idx * 6 + 5] = targetColor.b * attentionScore * 0.5;
+
+                    idx++;
+                }
+            }
         }
-        geo.attributes.position.needsUpdate = true
-    })
+
+        lineGeoRef.current.attributes.color.needsUpdate = true;
+    });
+
+    return (
+        <lineSegments>
+            <bufferGeometry ref={lineGeoRef}>
+                <bufferAttribute
+                    attach="attributes-position"
+                    count={linePositions.length / 3}
+                    array={linePositions}
+                    itemSize={3}
+                />
+                <bufferAttribute
+                    attach="attributes-color"
+                    count={lineColors.length / 3}
+                    array={lineColors}
+                    itemSize={3}
+                />
+            </bufferGeometry>
+            <lineBasicMaterial
+                ref={lineMatRef}
+                vertexColors
+                transparent
+                opacity={0.6}
+                blending={THREE.AdditiveBlending}
+                depthWrite={false}
+                linewidth={2}
+            />
+        </lineSegments>
+    );
+}
+
+function TransformerEmbeddings() {
+    const pointsRef = useRef();
+    const { positions, colors, basePositions, noiseOffsets } = useMemo(() => generateTransformerState(), []);
+
+    useFrame((state) => {
+        if (!pointsRef.current) return;
+        const time = state.clock.elapsedTime;
+        const pos = pointsRef.current.geometry.attributes.position.array;
+
+        // V (Value) Matrix Aggregation Animation
+        // Points belonging to the active token pulse larger/faster
+
+        let ptIdx = 0;
+        for (let t = 0; t < TOKENS.length; t++) {
+            const tokenSize = TOKENS[t].size;
+            const isActive = (t === window.activeTokenIdx);
+
+            for (let i = 0; i < tokenSize; i++) {
+                const i3 = ptIdx * 3;
+                const noise = noiseOffsets[ptIdx];
+                const bx = basePositions[i3];
+                const by = basePositions[i3 + 1];
+                const bz = basePositions[i3 + 2];
+
+                // If active, strong chaotic movement (representing QKV matrix multiplication)
+                // If inactive, gentle idle breathing
+                const speedMulti = isActive ? 2.5 : 0.5;
+                const distMulti = isActive ? 0.4 : 0.1;
+
+                pos[i3] = bx + Math.sin(time * speedMulti + noise) * distMulti;
+                pos[i3 + 1] = by + Math.cos(time * speedMulti * 0.8 + noise) * distMulti;
+                pos[i3 + 2] = bz + Math.sin(time * speedMulti * 1.2 + noise) * distMulti;
+
+                ptIdx++;
+            }
+        }
+        pointsRef.current.geometry.attributes.position.needsUpdate = true;
+    });
 
     return (
         <points ref={pointsRef}>
             <bufferGeometry>
                 <bufferAttribute
                     attach="attributes-position"
-                    count={POINTS_COUNT}
+                    count={TOTAL_POINTS}
                     array={positions}
                     itemSize={3}
                 />
                 <bufferAttribute
                     attach="attributes-color"
-                    count={POINTS_COUNT}
+                    count={TOTAL_POINTS}
                     array={colors}
                     itemSize={3}
                 />
@@ -213,7 +242,7 @@ function LatentSpaceEmbedding() {
                 blending={THREE.AdditiveBlending}
             />
         </points>
-    )
+    );
 }
 
 function CameraWarpController() {
@@ -234,13 +263,31 @@ function CameraWarpController() {
     ]
 
     useFrame(() => {
-        const progress = scroll.offset * 5 // 0 to 5
-        const segment = Math.min(Math.floor(progress), 4)
-        const t = progress - segment // 0 to 1
+        const offset = scroll.offset;
+        const perSection = 1 / TOKENS.length; // Assuming each token corresponds to a section
+
+        let activeIdx = 0;
+        for (let i = 0; i < TOKENS.length; i++) {
+            if (offset >= i * perSection && offset < (i + 1) * perSection) {
+                activeIdx = i;
+                break;
+            }
+        }
+        // Force the last section if we're at the very bottom
+        if (offset >= 0.99) activeIdx = TOKENS.length - 1;
+
+        if (window.activeTokenIdx !== activeIdx) {
+            window.activeTokenIdx = activeIdx;
+            window.dispatchEvent(new CustomEvent('tokenChanged'));
+        }
+
+        const progress = scroll.offset * (TOKENS.length - 1) // 0 to (num_tokens - 1)
+        const segment = Math.min(Math.floor(progress), TOKENS.length - 2) // Current segment index
+        const t = progress - segment // 0 to 1 within the current segment
 
         // Determine target clusters
-        const currentCenter = CLUSTER_CENTERS[segment]
-        const nextCenter = CLUSTER_CENTERS[segment + 1]
+        const currentCenter = TOKENS[segment].center
+        const nextCenter = TOKENS[segment + 1].center
         const currOffset = cameraOffsets[segment]
         const nextOffset = cameraOffsets[segment + 1]
 
@@ -321,10 +368,10 @@ export default function Scene() {
 
             <ambientLight intensity={0.1} />
             {/* Lights attached to clusters so they are illuminated when visited */}
-            {CLUSTER_CENTERS.map((pos, idx) => (
+            {TOKENS.map((token, idx) => (
                 <pointLight
                     key={idx}
-                    position={[pos.x, pos.y, pos.z + 5]}
+                    position={[token.center.x, token.center.y, token.center.z + 5]}
                     color={idx % 2 === 0 ? COLOR_CYAN : COLOR_INDIGO}
                     intensity={2}
                     distance={40}
@@ -332,7 +379,8 @@ export default function Scene() {
             ))}
 
             <CameraWarpController />
-            <LatentSpaceEmbedding />
+            <AttentionBeams />
+            <TransformerEmbeddings />
             <PostProcessing />
         </>
     )

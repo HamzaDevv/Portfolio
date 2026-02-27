@@ -6,6 +6,7 @@ import Overlay from './components/Overlay'
 import LoadingScreen from './components/LoadingScreen'
 import CustomCursor from './components/CustomCursor'
 import Navbar from './components/Navbar'
+import TransformerHUD from './components/TransformerHUD'
 
 export default function App() {
     const [loaded, setLoaded] = useState(false)
@@ -30,6 +31,7 @@ export default function App() {
             <CustomCursor />
             <LoadingScreen progress={progress} loaded={loaded} />
             <Navbar />
+            <TransformerHUD />
             <div className="canvas-container">
                 <Canvas
                     camera={{ position: [0, 0, 5], fov: 75 }}

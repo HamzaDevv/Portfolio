@@ -576,6 +576,142 @@ h6 {
   padding: 16px;
 }
 
+/* ============================================
+   Transformer HUD
+   ============================================ */
+
+.transformer-hud {
+  position: fixed;
+  right: 32px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 320px;
+  color: var(--white);
+  z-index: 1000;
+  /* Extremely high to ensure it floats over canvas */
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  mix-blend-mode: screen;
+  opacity: 0.9;
+  transition: opacity 0.5s var(--ease-out);
+}
+
+@media (max-width: 1024px) {
+  .transformer-hud {
+    display: none;
+    /* Hide on mobile to prevent clutter */
+  }
+}
+
+.hud-panel {
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  background: rgba(5, 5, 8, 0.6);
+  padding: 16px;
+  border-radius: 4px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.hud-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--cyan);
+  letter-spacing: 0.2em;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.hud-token-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+  color: var(--white);
+}
+
+.hud-token-name {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.hud-token-idx {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--gray);
+}
+
+.hud-math {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--gray);
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hud-math-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.hud-text-cyan {
+  color: rgba(0, 240, 255, 0.8);
+}
+
+.hud-text-gold {
+  color: var(--gold);
+}
+
+.hud-text-white {
+  color: var(--white);
+}
+
+.hud-text-gray {
+  color: var(--gray);
+}
+
+.hud-weight-row {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  margin-bottom: 12px;
+  position: relative;
+}
+
+.hud-weight-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.hud-self {
+  color: var(--cyan);
+  font-weight: 700;
+}
+
+.hud-high-attention {
+  color: var(--gold);
+}
+
+.hud-bar-bg {
+  height: 4px;
+  background: rgba(40, 50, 60, 0.5);
+  border-radius: 4px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.hud-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--cyan-dim), var(--gold));
+  transition: width 0.7s var(--ease-out);
+}
+
 .skill-category-title {
   font-family: var(--font-mono);
   font-size: 10px;
