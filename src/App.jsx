@@ -39,7 +39,7 @@ export default function App() {
                     gl={{ antialias: true, alpha: true }}
                 >
                     <Suspense fallback={null}>
-                        <ScrollControls pages={6} damping={0.15}>
+                        <ScrollControls pages={5} damping={0.1}>
                             <Scene />
                             <Overlay />
                         </ScrollControls>

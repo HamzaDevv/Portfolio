@@ -1,19 +1,22 @@
 /* ============================================
    NEURAL COMMAND CENTER — Design System
    ============================================ */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   /* Colors */
-  --obsidian: #050508;
+  --obsidian: #050505;
   /* Deep Space Black */
   --obsidian-light: #0d0d14;
   --obsidian-lighter: #161622;
-  --cyan: #00f0ff;
-  --cyan-dim: #0088aa;
-  --cyan-glow: rgba(0, 240, 255, 0.5);
-  --gold: #ffd700;
-  --gold-dim: #cca800;
-  --gold-glow: rgba(255, 215, 0, 0.4);
+  --cyan: #A855F7;
+  --cyan-dim: #7E22CE;
+  --cyan-glow: rgba(168, 85, 247, 0.5);
+  --gold: #84CC16;
+  --gold-dim: #4D7C0F;
+  --gold-glow: rgba(132, 204, 22, 0.4);
   --white: #e0e6ed;
   --white-bright: #ffffff;
   --gray: #8ca3b8;
@@ -326,6 +329,13 @@ h6 {
   z-index: 1;
 }
 
+/* Drei ScrollControls wrapper styling to enforce snapping */
+.canvas-container>div,
+.canvas-container [style*="overflow: auto"] {
+  scroll-snap-type: y mandatory !important;
+  scroll-behavior: smooth;
+}
+
 .scroll-container {
   position: relative;
   z-index: 2;
@@ -335,13 +345,28 @@ h6 {
    Section Common Styles
    ============================================ */
 
+.scroll-snap-container {
+  width: 100%;
+}
+
 .section {
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 120px 60px;
+  padding: 100px 40px;
   position: relative;
+  overflow: hidden;
+  /* Spring snap behavior */
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+}
+
+@media (min-width: 1024px) {
+  .section {
+    padding-right: 320px;
+    padding-left: 60px;
+  }
 }
 
 .section-label {
@@ -512,6 +537,8 @@ h6 {
   max-width: 1200px;
   margin: 0 auto;
   align-items: center;
+  max-height: 85vh;
+  /* Prevent overflowing off-screen on short displays */
 }
 
 .about-photo-frame {
@@ -556,10 +583,10 @@ h6 {
 }
 
 .about-bio {
-  font-size: 16px;
-  line-height: 1.8;
+  font-size: 14px;
+  line-height: 1.6;
   color: var(--gray);
-  margin-bottom: 32px;
+  margin-bottom: 24px;
 }
 
 .about-bio strong {
@@ -569,7 +596,7 @@ h6 {
 .skills-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: 12px;
 }
 
 .skill-category {
@@ -582,20 +609,30 @@ h6 {
 
 .transformer-hud {
   position: fixed;
-  right: 32px;
+  right: 24px;
   top: 50%;
   transform: translateY(-50%);
-  width: 320px;
+  width: 260px;
+  max-height: 90vh;
+  overflow-y: auto;
   color: var(--white);
   z-index: 1000;
   /* Extremely high to ensure it floats over canvas */
-  pointer-events: none;
+  pointer-events: auto;
+  /* Allow scrolling the HUD if needed */
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 16px;
   mix-blend-mode: screen;
   opacity: 0.9;
   transition: opacity 0.5s var(--ease-out);
+  /* Hide scrollbar for clean aesthetics */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.transformer-hud::-webkit-scrollbar {
+  display: none;
 }
 
 @media (max-width: 1024px) {
@@ -608,7 +645,7 @@ h6 {
 .hud-panel {
   border: 1px solid rgba(0, 240, 255, 0.3);
   background: rgba(5, 5, 8, 0.6);
-  padding: 16px;
+  padding: 12px;
   border-radius: 4px;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -634,7 +671,7 @@ h6 {
 }
 
 .hud-token-name {
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 700;
   letter-spacing: 1px;
 }
@@ -647,9 +684,9 @@ h6 {
 
 .hud-math {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 9px;
   color: var(--gray);
-  margin-top: 16px;
+  margin-top: 12px;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -678,8 +715,8 @@ h6 {
 
 .hud-weight-row {
   font-family: var(--font-mono);
-  font-size: 12px;
-  margin-bottom: 12px;
+  font-size: 10px;
+  margin-bottom: 10px;
   position: relative;
 }
 
@@ -774,8 +811,17 @@ h6 {
 .timeline-item {
   position: relative;
   margin-bottom: 48px;
-  padding: 32px;
+  max-height: 80vh;
+  overflow-y: auto;
+  /* Hide scrollbar for clean aesthetics */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  padding: 40px 32px;
   transition: transform 0.4s var(--ease-out);
+}
+
+.timeline-item::-webkit-scrollbar {
+  display: none;
 }
 
 .timeline-item:hover {

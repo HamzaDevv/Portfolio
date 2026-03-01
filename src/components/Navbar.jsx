@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-const sections = ['Home', 'About', 'Experience', 'Projects', 'Achievements', 'Contact']
+const sections = ['Home', 'About', 'Experience', 'Projects', 'Contact']
 
 export default function Navbar() {
     const [active, setActive] = useState('Home')

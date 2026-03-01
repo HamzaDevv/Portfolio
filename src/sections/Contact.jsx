@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react'
+import { motion } from 'framer-motion'
 import emailjs from '@emailjs/browser'
 import useScrollReveal from '../hooks/useScrollReveal'
 
@@ -34,138 +35,107 @@ export default function Contact() {
         }
     }
 
+
     return (
-        <section className="section" id="contact" style={{ minHeight: '100vh' }}>
-            <div className="contact">
-                <div ref={headerRef} className={`reveal ${headerVisible ? 'visible' : ''}`}>
-                    <div className="section-label">// contact</div>
-                    <h2 className="section-title" style={{ marginBottom: 48 }}>
-                        Establish <span className="accent">Connection</span>
+        <section className="section" id="contact" style={{ overflow: 'auto' }}>
+            <div className="w-full max-w-4xl mx-auto flex flex-col items-center" style={{ maxHeight: '85vh', overflowY: 'auto', msOverflowStyle: 'none', scrollbarWidth: 'none' }}>
+                <div ref={headerRef} className={`reveal ${headerVisible ? 'visible' : ''} text-center mb-16`}>
+                    <div className="section-label text-electric-purple tracking-[0.3em]">// softmax-distribution</div>
+                    <h2 className="section-title">
+                        Output <span className="text-cyber-lime">Layer</span>
                     </h2>
+                    <p className="text-gray mt-4 max-w-lg mx-auto">
+                        Computing final probabilities for Future Interests. Select the highest probability token to establish a connection.
+                    </p>
                 </div>
 
-                <div className="contact-grid">
-                    <div ref={formRevealRef} className={`reveal-left ${formVisible ? 'visible' : ''}`}>
-                        <form ref={formRef} className="contact-form" onSubmit={handleSubmit}>
-                            <div className="form-group">
-                                <label htmlFor="from_name">Identifier</label>
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="w-full grid grid-cols-1 md:grid-cols-2 gap-8"
+                >
+                    <div className="glass p-8 border-electric-purple/30">
+                        <h3 className="font-heading text-2xl font-bold text-white mb-6">Transmission</h3>
+                        <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
+                            <div>
                                 <input
-                                    id="from_name"
                                     type="text"
                                     name="from_name"
-                                    placeholder="Your Name"
+                                    placeholder="Identifier"
                                     required
+                                    className="w-full bg-obsidian-light border border-electric-purple/20 p-3 text-white font-mono text-sm focus:border-cyber-lime outline-none transition-colors"
                                 />
                             </div>
-                            <div className="form-group">
-                                <label htmlFor="from_email">Return Address</label>
+                            <div>
                                 <input
-                                    id="from_email"
                                     type="email"
                                     name="from_email"
-                                    placeholder="your@email.com"
+                                    placeholder="Return Address"
                                     required
+                                    className="w-full bg-obsidian-light border border-electric-purple/20 p-3 text-white font-mono text-sm focus:border-cyber-lime outline-none transition-colors"
                                 />
                             </div>
-                            <div className="form-group">
-                                <label htmlFor="message">Transmission</label>
+                            <div>
                                 <textarea
-                                    id="message"
                                     name="message"
-                                    placeholder="Your message..."
+                                    placeholder="Payload..."
+                                    rows={4}
                                     required
+                                    className="w-full bg-obsidian-light border border-electric-purple/20 p-3 text-white font-mono text-sm focus:border-cyber-lime outline-none transition-colors resize-none"
                                 />
                             </div>
                             <button
                                 type="submit"
-                                className={`form-submit ${sent ? 'sent' : ''}`}
                                 disabled={sending}
+                                className="w-full py-3 bg-electric-purple/20 border border-electric-purple text-white font-mono text-sm hover:bg-electric-purple/40 transition-colors disabled:opacity-50"
                             >
-                                {sending ? '⟳ TRANSMITTING...' : sent ? '✓ TRANSMITTED' : '→ SEND TRANSMISSION'}
+                                {sending ? '⟳ TRANSMITTING...' : sent ? '✓ TRANSMITTED' : '→ SEND'}
                             </button>
-                            {error && (
-                                <p style={{ color: '#ff5f57', fontFamily: 'var(--font-mono)', fontSize: 12 }}>
-                                    {error}
-                                </p>
-                            )}
+                            {error && <p className="text-red-500 font-mono text-xs">{error}</p>}
                         </form>
                     </div>
 
-                    <div ref={infoRef} className={`reveal-right ${infoVisible ? 'visible' : ''}`}>
-                        <div className="contact-info">
-                            <div className="contact-item glass">
-                                <div className="contact-item-icon">📧</div>
-                                <div>
-                                    <div className="contact-item-label">Email</div>
-                                    <div className="contact-item-value">
-                                        <a href="mailto:ameerhamzakhan1305@gmail.com">ameerhamzakhan1305@gmail.com</a>
-                                    </div>
-                                </div>
+                    <div className="space-y-4">
+                        <div className="glass p-6 border-electric-purple/20 flex items-center gap-4">
+                            <div className="text-2xl">📧</div>
+                            <div>
+                                <div className="text-xs font-mono text-gray">Email</div>
+                                <a href="mailto:ameerhamzakhan1305@gmail.com" className="text-white hover:text-cyber-lime transition-colors">ameerhamzakhan1305@gmail.com</a>
                             </div>
-
-                            <div className="contact-item glass">
-                                <div className="contact-item-icon">📱</div>
-                                <div>
-                                    <div className="contact-item-label">Phone</div>
-                                    <div className="contact-item-value">+91-7987918845</div>
-                                </div>
+                        </div>
+                        <div className="glass p-6 border-electric-purple/20 flex items-center gap-4">
+                            <div className="text-2xl">📱</div>
+                            <div>
+                                <div className="text-xs font-mono text-gray">Phone</div>
+                                <div className="text-white">+91-7987918845</div>
                             </div>
-
-                            <div className="contact-item glass">
-                                <div className="contact-item-icon">🎓</div>
-                                <div>
-                                    <div className="contact-item-label">Education</div>
-                                    <div className="contact-item-value">IIEST Shibpur • B.Tech IT • 8.24 CGPA</div>
-                                </div>
+                        </div>
+                        <div className="glass p-6 border-electric-purple/20 flex items-center gap-4">
+                            <div className="text-2xl">🎓</div>
+                            <div>
+                                <div className="text-xs font-mono text-gray">Education</div>
+                                <div className="text-white">IIEST Shibpur • B.Tech IT</div>
                             </div>
+                        </div>
 
-                            <div className="social-links">
-                                <a
-                                    href="https://www.linkedin.com/in/hamzadevv/"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="social-link"
-                                    title="LinkedIn"
-                                >
-                                    in
-                                </a>
-                                <a
-                                    href="https://github.com/HamzaDevv"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="social-link"
-                                    title="GitHub"
-                                >
-                                    GH
-                                </a>
-                                <a
-                                    href="https://leetcode.com/u/hamzadevv/"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="social-link"
-                                    title="LeetCode"
-                                >
-                                    LC
-                                </a>
-                            </div>
-
-                            <a
-                                href="/Ameer_Hamza_Khan_Resume_M.pdf"
-                                download
-                                className="download-btn"
-                            >
-                                ⬇ Download Resume
+                        <div className="flex gap-4 mt-8">
+                            <a href="https://www.linkedin.com/in/hamzadevv/" target="_blank" rel="noreferrer" className="flex-1 glass p-4 text-center font-mono text-sm text-gray hover:text-white hover:border-cyber-lime/50 transition-colors">
+                                LinkedIn
+                            </a>
+                            <a href="https://github.com/HamzaDevv" target="_blank" rel="noreferrer" className="flex-1 glass p-4 text-center font-mono text-sm text-gray hover:text-white hover:border-cyber-lime/50 transition-colors">
+                                GitHub
+                            </a>
+                            <a href="https://leetcode.com/u/HamzaDev87/" target="_blank" rel="noreferrer" className="flex-1 glass p-4 text-center font-mono text-sm text-gray hover:text-white hover:border-cyber-lime/50 transition-colors">
+                                LeetCode
                             </a>
                         </div>
                     </div>
-                </div>
+                </motion.div>
 
-                <footer className="footer">
-                    <span>© 2026 Ameer Hamza Khan — Built with React Three Fiber</span>
-                    <div className="footer-links">
-                        <a href="https://www.linkedin.com/in/hamzadevv/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-                        <a href="https://github.com/HamzaDevv" target="_blank" rel="noopener noreferrer">GitHub</a>
-                    </div>
+
+                <footer className="mt-32 border-t border-electric-purple/20 w-full pt-8 flex justify-between items-center font-mono text-xs text-gray">
+                    <span>© 2026 Ameer Hamza Khan</span>
+                    <span>Built with React Three Fiber</span>
                 </footer>
             </div>
         </section>

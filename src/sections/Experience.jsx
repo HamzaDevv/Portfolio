@@ -69,19 +69,19 @@ function TerminalWindow() {
 
 const experiences = [
     {
+        head: "Head 1: Legal RAG & Deep Search",
         role: 'AI Engineer Intern',
         company: 'Vaquill AI',
         date: 'Dec 2025 — Present',
         points: [
             { text: 'High-Scale RAG: Engineered a legal retrieval system managing', metric: '19M+ documents' },
             { text: 'Deep Reasoning Tier: Developed "Deep Search" via multi-hop retrieval, achieving', metric: '91% Recall@10' },
-            { text: 'Synthetic Data Engineering: Architected pipeline using DeepSeek APIs to generate', metric: '19K+ reasoning pairs' },
-            { text: 'LLM Fine-Tuning: Fine-tuned Llama 3.1 8B via Unsloth/QLoRA on A100 GPUs — outperformed', metric: 'GPT-4o & o3-mini' },
-            { text: 'Reliability: Built a critique layer (CRAG) with self-reflection loops, enforcing strict grounding to eliminate hallucinations', metric: null },
+            { text: 'LLM Fine-Tuning: Fine-tuned Llama 3.1 8B via Unsloth on A100 GPUs — outperformed', metric: 'GPT-4o' },
         ],
         showTerminal: true,
     },
     {
+        head: "Head 2: Agentic Systems",
         role: 'Summer Research Intern',
         company: 'IDEAS-TIH (ISI Kolkata)',
         date: 'May 2025 — Jul 2025',
@@ -92,27 +92,55 @@ const experiences = [
         ],
         showTerminal: false,
     },
+    {
+        head: "Head 3: Proactive AIoT",
+        role: 'Project Lead',
+        company: 'Sadaf-BOT',
+        date: '2024',
+        points: [
+            { text: 'Architecture: Engineered a multi-agent framework based on the', metric: 'SENSE-THINK-ACTION pipeline' },
+            { text: 'Execution: Integrated robotic process automation for real-world automated actions based on AI inference', metric: null },
+        ],
+        showTerminal: false,
+    },
+    {
+        head: "Head 4: Optimization",
+        role: 'Competitive Programmer',
+        company: 'LeetCode & Codeforces',
+        date: 'Ongoing',
+        points: [
+            { text: 'Algorithmic Mastery: Solved', metric: '1000+ LeetCode problems' },
+            { text: 'Rank: Attained', metric: 'Knight rank' },
+            { text: 'Rating: Peak contest rating of', metric: '1835' },
+        ],
+        showTerminal: false,
+    },
 ]
 
 export default function Experience() {
     const [headerRef, headerVisible] = useScrollReveal()
     const [card1Ref, card1Visible] = useScrollReveal()
     const [card2Ref, card2Visible] = useScrollReveal()
+    const [card3Ref, card3Visible] = useScrollReveal()
+    const [card4Ref, card4Visible] = useScrollReveal()
+
+    const refs = [card1Ref, card2Ref, card3Ref, card4Ref];
+    const vises = [card1Visible, card2Visible, card3Visible, card4Visible]
 
     return (
-        <section className="section" id="experience" style={{ minHeight: '100vh' }}>
-            <div className="experience">
+        <section className="section" id="experience" style={{ overflow: 'auto' }}>
+            <div className="experience" style={{ maxHeight: '85vh', overflowY: 'auto', msOverflowStyle: 'none', scrollbarWidth: 'none' }}>
                 <div ref={headerRef} className={`reveal ${headerVisible ? 'visible' : ''}`}>
-                    <div className="section-label">// experience</div>
+                    <div className="section-label text-electric-purple tracking-[0.3em]">// multi-head-attention</div>
                     <h2 className="section-title">
-                        Mission <span className="accent">Log</span>
+                        Experience <span className="text-cyber-lime">Weights</span>
                     </h2>
                 </div>
 
-                <div className="timeline">
+                <div className="timeline border-l-2 border-electric-purple/30">
                     {experiences.map((exp, idx) => {
-                        const cardRef = idx === 0 ? card1Ref : card2Ref
-                        const cardVisible = idx === 0 ? card1Visible : card2Visible
+                        const cardRef = refs[idx]
+                        const cardVisible = vises[idx]
                         return (
                             <div
                                 key={idx}
@@ -120,15 +148,20 @@ export default function Experience() {
                                 className={`timeline-item glass reveal ${cardVisible ? 'visible' : ''}`}
                                 style={{ transitionDelay: `${idx * 0.15}s` }}
                             >
-                                <div className="timeline-role">{exp.role}</div>
-                                <div className="timeline-company">{exp.company}</div>
-                                <div className="timeline-date">{exp.date}</div>
-                                <ul className="timeline-points">
+                                <div className="absolute -left-[45px] top-8 w-4 h-4 rounded-full bg-cyber-lime shadow-[0_0_15px_rgba(132,204,22,0.8)] z-10 animate-pulse" />
+
+                                <div className="text-electric-purple font-mono text-xs tracking-widest uppercase mb-4 border-b border-electric-purple/20 pb-2">
+                                    [ {exp.head} ]
+                                </div>
+                                <div className="timeline-role text-white text-2xl font-bold">{exp.role}</div>
+                                <div className="timeline-company text-gray mt-1">{exp.company}</div>
+                                <div className="timeline-date text-electric-purple font-mono text-xs mt-2">{exp.date}</div>
+                                <ul className="timeline-points mt-6 space-y-3">
                                     {exp.points.map((point, pi) => (
-                                        <li key={pi}>
+                                        <li key={pi} className="text-sm text-gray">
                                             <strong>{point.text}</strong>
                                             {point.metric && (
-                                                <span className="timeline-metric">{point.metric}</span>
+                                                <span className="timeline-metric text-cyber-lime ml-2 font-bold">{point.metric}</span>
                                             )}
                                         </li>
                                     ))}

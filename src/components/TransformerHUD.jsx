@@ -1,16 +1,15 @@
 import { useState, useEffect } from 'react';
 
-const TOKENS = ["Hero", "About", "Experience", "Projects", "Achievements", "Contact"];
+const TOKENS = ["Ameer_Hamza_Khan", "AI_Engineer_Vaquill", "LLM_&_RAG_Systems", "19M+_Tokens_Processed", "Connect_Protocol"];
 
 // Pre-computed mock attention weights for educational display
 // Active token -> weights against all other tokens
 const ATTENTION_WEIGHTS = [
-    [1.00, 0.45, 0.20, 0.15, 0.30, 0.80], // Hero attending to others
-    [0.45, 1.00, 0.85, 0.90, 0.60, 0.10], // About
-    [0.20, 0.85, 1.00, 0.95, 0.70, 0.15], // Experience
-    [0.15, 0.90, 0.95, 1.00, 0.88, 0.20], // Projects
-    [0.30, 0.60, 0.70, 0.88, 1.00, 0.25], // Achievements
-    [0.80, 0.10, 0.15, 0.20, 0.25, 1.00]  // Contact
+    [1.00, 0.45, 0.20, 0.15, 0.80], // Hero attending to others
+    [0.45, 1.00, 0.85, 0.90, 0.10], // About
+    [0.20, 0.85, 1.00, 0.95, 0.15], // Experience
+    [0.15, 0.90, 0.95, 1.00, 0.20], // Projects
+    [0.80, 0.10, 0.15, 0.20, 1.00]  // Contact
 ];
 
 export default function TransformerHUD() {

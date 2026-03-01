@@ -1,98 +1,88 @@
 import { useRef, useEffect } from 'react'
 import useScrollReveal from '../hooks/useScrollReveal'
 
-const projects = [
-    {
-        icon: '🤖',
-        name: 'Proactive-AIoT-Assistant',
-        subtitle: 'Context-Aware Smart Environment',
-        description: 'Designed a SENSE-THINK-ACTION pipeline interpreting sensor data (Fit, Maps, Calendar) to predict user needs. Developed a hybrid reasoning model combining deterministic decision graphs with LLM intent extraction.',
-        tech: ['Python', 'LLMs', 'FastAPI', 'ChromaDB', 'AIoT'],
-        github: 'https://github.com/HamzaDevv/Proactive-AIoT-Assistant',
-        isSadaf: false,
-    },
-    {
-        icon: '👁️',
-        name: 'Sadaf-Bot',
-        subtitle: 'Conversational AI with Vision & Memory',
-        description: 'Built a speech-enabled AI assistant with vision capabilities and modular long-term vector memory. Implemented multi-threaded async processing for real-time concurrent STT, TTS, and memory updates.',
-        tech: ['Python', 'LLMs', 'ChromaDB', 'Ollama', 'STT/TTS'],
-        github: 'https://github.com/HamzaDevv/Sadaf-BOT',
-        isSadaf: true,
-    },
-    {
-        icon: '🛒',
-        name: 'Smart-Shop-Agent',
-        subtitle: 'AI-Powered Inventory System',
-        description: 'Dukaan Sahaayak — Smart inventory system using LangGraph-powered AI agents for automated billing and natural language-to-SQL conversion with Gemini OCR integration.',
-        tech: ['Python', 'LangGraph', 'Gemini', 'Ollama', 'SQL'],
-        github: 'https://github.com/HamzaDevv/smart-shop-agent',
-        isSadaf: false,
-    },
+const coreCS = [
+    { name: "Data Structures & Algorithms", level: 95 },
+    { name: "Object-Oriented Programming (OOP)", level: 90 },
+    { name: "Operating Systems", level: 85 },
+    { name: "Database Management Systems", level: 85 },
+    { name: "System Design", level: 80 }
 ]
 
-function SadafEye() {
-    const eyeRef = useRef(null)
-    const pupilRef = useRef(null)
+const tools = [
+    { name: "Python", icon: "🐍" },
+    { name: "PyTorch", icon: "🔥" },
+    { name: "LangChain & LangGraph", icon: "🦜" },
+    { name: "React & Three.js", icon: "⚛️" },
+    { name: "Docker & AWS", icon: "🐳" },
+    { name: "Unsloth & QLoRA", icon: "🦥" }
+]
 
-    useEffect(() => {
-        const handleMove = (e) => {
-            if (!eyeRef.current || !pupilRef.current) return
-            const rect = eyeRef.current.getBoundingClientRect()
-            const cx = rect.left + rect.width / 2
-            const cy = rect.top + rect.height / 2
-            const dx = e.clientX - cx
-            const dy = e.clientY - cy
-            const dist = Math.sqrt(dx * dx + dy * dy)
-            const maxDist = 14
-            const ratio = Math.min(dist / 200, 1)
-            pupilRef.current.style.transform = `translate(${(dx / dist) * maxDist * ratio}px, ${(dy / dist) * maxDist * ratio}px)`
-        }
-        window.addEventListener('mousemove', handleMove)
-        return () => window.removeEventListener('mousemove', handleMove)
-    }, [])
-
+function ProgressBar({ level }) {
     return (
-        <div className="sadaf-eye" ref={eyeRef}>
-            <div className="sadaf-pupil" ref={pupilRef} />
+        <div className="w-full h-1 bg-electric-purple/20 rounded-full overflow-hidden mt-2">
+            <div
+                className="h-full bg-gradient-to-r from-electric-purple to-cyber-lime"
+                style={{ width: `${level}%`, transition: 'width 1s ease-out' }}
+            />
         </div>
     )
 }
 
 export default function Projects() {
     const [headerRef, headerVisible] = useScrollReveal()
-    const [gridRef, gridVisible] = useScrollReveal()
+    const [csRef, csVisible] = useScrollReveal()
+    const [toolsRef, toolsVisible] = useScrollReveal()
 
     return (
-        <section className="section" id="projects" style={{ minHeight: '100vh' }}>
-            <div style={{ width: '100%', maxWidth: 1200, margin: '0 auto' }}>
-                <div ref={headerRef} className={`reveal ${headerVisible ? 'visible' : ''}`}>
-                    <div className="section-label">// projects</div>
-                    <h2 className="section-title" style={{ marginBottom: 48 }}>
-                        The <span className="accent">Lab</span>
-                    </h2>
+        <section className="section" id="projects" style={{ overflow: 'auto' }}>
+            <div style={{ width: '100%', maxWidth: 1200, margin: '0 auto', maxHeight: '85vh', overflowY: 'auto', msOverflowStyle: 'none', scrollbarWidth: 'none' }} className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <div className="flex flex-col justify-center">
+                    <div ref={headerRef} className={`reveal ${headerVisible ? 'visible' : ''}`}>
+                        <div className="section-label text-electric-purple tracking-[0.3em]">// feed-forward-network</div>
+                        <h2 className="section-title mb-12">
+                            Technical <span className="text-cyber-lime">Core</span>
+                        </h2>
+                        <p className="text-gray mb-8 leading-relaxed">
+                            The hidden layers of my architecture. A dense mesh of theoretical computer science foundations and cutting-edge AI engineering tools.
+                        </p>
+                    </div>
+
+                    <div ref={csRef} className={`reveal delay-2 ${csVisible ? 'visible' : ''} glass p-8 border-electric-purple/30 mb-8`}>
+                        <h3 className="text-xl font-heading font-bold text-white mb-6 flex items-center gap-3">
+                            <span className="text-electric-purple">{'<'}</span>
+                            Core Computer Science
+                            <span className="text-electric-purple">{'>'}</span>
+                        </h3>
+                        <div className="space-y-4">
+                            {coreCS.map((cs, idx) => (
+                                <div key={idx}>
+                                    <div className="flex justify-between text-sm font-mono text-gray">
+                                        <span>{cs.name}</span>
+                                    </div>
+                                    <ProgressBar level={cs.level} />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 </div>
 
-                <div ref={gridRef} className={`projects-grid stagger-children ${gridVisible ? 'visible' : ''}`}>
-                    {projects.map((project, idx) => (
-                        <div key={idx} className="project-card glass" style={{ position: 'relative' }}>
-                            {project.isSadaf && <SadafEye />}
-                            <div className="project-icon">{project.icon}</div>
-                            <div className="project-name">{project.name}</div>
-                            <div className="project-subtitle">{project.subtitle}</div>
-                            <p className="project-description">{project.description}</p>
-                            <div className="project-tech">
-                                {project.tech.map((t) => (
-                                    <span key={t}>{t}</span>
-                                ))}
-                            </div>
-                            <div className="project-links">
-                                <a href={project.github} target="_blank" rel="noopener noreferrer">
-                                    ↗ GitHub
-                                </a>
-                            </div>
+                <div className="flex flex-col justify-center">
+                    <div ref={toolsRef} className={`reveal delay-4 ${toolsVisible ? 'visible' : ''} glass p-8 border-cyber-lime/30 h-full`}>
+                        <h3 className="text-xl font-heading font-bold text-white mb-8 flex items-center gap-3">
+                            <span className="text-cyber-lime">{'['}</span>
+                            Frameworks & Tools
+                            <span className="text-cyber-lime">{']'}</span>
+                        </h3>
+                        <div className="grid grid-cols-2 gap-4">
+                            {tools.map((tool, idx) => (
+                                <div key={idx} className="glass p-4 border-electric-purple/20 flex flex-col items-center justify-center text-center hover:border-cyber-lime/50 hover:bg-cyber-lime/5 transition-colors group cursor-pointer h-32">
+                                    <div className="text-3xl mb-3 group-hover:scale-110 transition-transform">{tool.icon}</div>
+                                    <div className="font-mono text-xs text-gray group-hover:text-white transition-colors">{tool.name}</div>
+                                </div>
+                            ))}
                         </div>
-                    ))}
+                    </div>
                 </div>
             </div>
         </section>

@@ -1,27 +1,26 @@
 import { useRef, useMemo, useState } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
-import { useScroll } from '@react-three/drei'
+import { useScroll, Sparkles, Stars } from '@react-three/drei'
 import * as THREE from 'three'
 import { EffectComposer, Bloom, Vignette, ChromaticAberration } from '@react-three/postprocessing'
 
 // Deep space black background
-const BG_COLOR = '#050508'
+const BG_COLOR = '#050505'
 
-// Gradient colors (Cyan-Core to Deep Indigo)
-const COLOR_CYAN = new THREE.Color('#00f0ff')
-const COLOR_INDIGO = new THREE.Color('#2e00ff') // Deep indigo / electric blue
-const COLOR_GOLD = new THREE.Color('#ffd700') // For accents
+// Gradient colors
+const COLOR_CYAN = new THREE.Color('#A855F7') // Electric Purple
+const COLOR_INDIGO = new THREE.Color('#7E22CE') // Deep Purple
+const COLOR_GOLD = new THREE.Color('#84CC16') // Cyber Lime
 
 // Transformer Embeddings: Define the "Tokens"
 // Instead of random points, we dedicate a specific cluster location to each portfolio section (Token).
 // Q, K, V are implicitly represented by how they connect.
 const TOKENS = [
-    { id: 0, name: "Hero", center: new THREE.Vector3(0, 0, 0), size: 3000 },
-    { id: 1, name: "About", center: new THREE.Vector3(-40, -50, -80), size: 2000 },
-    { id: 2, name: "Experience", center: new THREE.Vector3(50, -100, -160), size: 3500 },
-    { id: 3, name: "Projects", center: new THREE.Vector3(-50, -150, -240), size: 2500 },
-    { id: 4, name: "Achievements", center: new THREE.Vector3(40, -200, -320), size: 1500 },
-    { id: 5, name: "Contact", center: new THREE.Vector3(0, -250, -400), size: 1000 }
+    { id: 0, name: "Input Embedding", center: new THREE.Vector3(0, 0, 0), size: 600 },
+    { id: 1, name: "About", center: new THREE.Vector3(-40, -50, -80), size: 400 },
+    { id: 2, name: "Multi-Head Attention", center: new THREE.Vector3(50, -100, -160), size: 700 },
+    { id: 3, name: "Feed-Forward Network", center: new THREE.Vector3(-50, -150, -240), size: 500 },
+    { id: 4, name: "Softmax Output", center: new THREE.Vector3(0, -200, -320), size: 400 }
 ];
 
 const TOTAL_POINTS = TOKENS.reduce((acc, t) => acc + t.size, 0);
@@ -254,34 +253,24 @@ function CameraWarpController() {
     window.warpIntensity = 0
 
     const cameraOffsets = [
-        new THREE.Vector3(0, 0, 15),          // Hero
-        new THREE.Vector3(0, 5, 20),          // About (look down slightly)
-        new THREE.Vector3(0, 0, 25),          // Experience (wide view of block)
-        new THREE.Vector3(0, 8, 20),          // Projects
-        new THREE.Vector3(0, 15, 15),         // Achievements (look down at rings)
-        new THREE.Vector3(0, 0, 20)           // Contact
+        new THREE.Vector3(0, 0, 15),          // Input
+        new THREE.Vector3(0, 2, 20),          // About
+        new THREE.Vector3(0, 0, 25),          // Attention
+        new THREE.Vector3(0, 5, 20),          // FFN
+        new THREE.Vector3(0, 0, 20)           // Output
     ]
 
     useFrame(() => {
-        const offset = scroll.offset;
-        const perSection = 1 / TOKENS.length; // Assuming each token corresponds to a section
+        const progress = scroll.offset * (TOKENS.length - 1) // 0 to 4
 
-        let activeIdx = 0;
-        for (let i = 0; i < TOKENS.length; i++) {
-            if (offset >= i * perSection && offset < (i + 1) * perSection) {
-                activeIdx = i;
-                break;
-            }
-        }
-        // Force the last section if we're at the very bottom
-        if (offset >= 0.99) activeIdx = TOKENS.length - 1;
+        let activeIdx = Math.round(progress);
+        activeIdx = Math.max(0, Math.min(activeIdx, TOKENS.length - 1));
 
         if (window.activeTokenIdx !== activeIdx) {
             window.activeTokenIdx = activeIdx;
             window.dispatchEvent(new CustomEvent('tokenChanged'));
         }
 
-        const progress = scroll.offset * (TOKENS.length - 1) // 0 to (num_tokens - 1)
         const segment = Math.min(Math.floor(progress), TOKENS.length - 2) // Current segment index
         const t = progress - segment // 0 to 1 within the current segment
 
@@ -377,6 +366,9 @@ export default function Scene() {
                     distance={40}
                 />
             ))}
+
+            <Stars radius={100} depth={50} count={1000} factor={4} saturation={0} fade speed={1} />
+            <Sparkles count={50} scale={100} size={2} speed={0.4} opacity={0.5} color={COLOR_CYAN} position={[0, -100, -200]} />
 
             <CameraWarpController />
             <AttentionBeams />
